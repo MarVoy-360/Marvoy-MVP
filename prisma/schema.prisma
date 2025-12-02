@@ -54,3 +54,76 @@ model Voyage {
   
   @@map("voyages")
 }
+
+
+// Laytime Extended Models
+model PortCall {
+  id              String   @id @default(cuid())
+  voyageId        String
+  portCode        String
+  portName        String
+  sequenceNumber  Int
+  eta             DateTime?
+  ata             DateTime?
+  atBerth         DateTime?
+  opsCompleted    DateTime?
+  createdAt       DateTime @default(now())
+  
+  @@map("port_calls")
+}
+
+model Cargo {
+  id                  String   @id @default(cuid())
+  voyageId            String
+  cargoName           String
+  quantity            Float
+  unit                String   @default("MT")
+  loadPortCallId      String
+  dischargePortCallId String
+  createdAt           DateTime @default(now())
+  
+  @@map("cargoes")
+}
+
+model CharterParty {
+  id                      String   @id @default(cuid())
+  voyageId                String
+  cpNumber                String
+  chartererName           String
+  laytimeAllowedValue     Float
+  laytimeAllowedUnit      String
+  demurrageRatePerDay     Float
+  despatchRatePerDay      Float?
+  reversibleTermsEnabled  Boolean  @default(false)
+  prorationAllowed        Boolean  @default(false)
+  createdAt               DateTime @default(now())
+  
+  @@map("charter_parties")
+}
+
+model LaytimeCalculation {
+  id                      String   @id @default(cuid())
+  voyageId                String
+  status                  String   @default("DRAFT")
+  timeOnDemurrageMinutes  Int      @default(0)
+  timeOnDespatchMinutes   Int      @default(0)
+  demurrageAmount         Float    @default(0)
+  despatchAmount          Float    @default(0)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  
+  @@map("laytime_calculations")
+}
+
+model PortActivity {
+  id                      String   @id @default(cuid())
+  laytimeCalculationId    String
+  eventType               String
+  fromDateTime            DateTime
+  toDateTime              DateTime?
+  countBehavior           String   @default("FULL")
+  description             String?
+  createdAt               DateTime @default(now())
+  
+  @@map("port_activities")
+}
