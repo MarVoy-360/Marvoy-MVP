@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import PortCallsManager from './components/PortCallsManager'
 import Link from 'next/link'
 
 interface Voyage {
@@ -281,7 +282,7 @@ export default function VoyageDetailPage() {
                 + Add Port Call
               </button>
             </div>
-            <p className="text-gray-500 text-center py-8">Port calls management UI coming soon...</p>
+            <PortCallsManager voyageId={params.id as string} onUpdate={fetchVoyage} />
           </div>
         )}
 
