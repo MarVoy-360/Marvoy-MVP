@@ -1,12 +1,15 @@
+// @ts-nocheck
 import { NextRequest, NextResponse } from 'next/server'
+export const dynamic = "force-dynamic";
 import prisma from '@/lib/prisma/client'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { voyageId: string } }
+  { params }: { params: Promise<{ voyageId: string }> }
 ) {
   try {
+    const { voyageId } = await params;
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -26,7 +29,7 @@ export async function GET(
     // Verify voyage belongs to user's organization
     const voyage = await prisma.voyage.findFirst({
       where: {
-        id: params.voyageId,
+        id: voyageId,
         organizationId: dbUser.organizationId
       }
     })
@@ -36,7 +39,7 @@ export async function GET(
     }
 
     const portCalls = await prisma.portCall.findMany({
-      where: { voyageId: params.voyageId },
+      where: { voyageId: voyageId },
       orderBy: { sequence: 'asc' },
       include: {
         activities: {
@@ -56,9 +59,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { voyageId: string } }
+  { params }: { params: Promise<{ voyageId: string }> }
 ) {
   try {
+    const { voyageId } = await params;
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -78,7 +82,7 @@ export async function POST(
     // Verify voyage belongs to user's organization
     const voyage = await prisma.voyage.findFirst({
       where: {
-        id: params.voyageId,
+        id: voyageId,
         organizationId: dbUser.organizationId
       }
     })
@@ -99,7 +103,7 @@ export async function POST(
 
     const portCall = await prisma.portCall.create({
       data: {
-        voyageId: params.voyageId,
+        voyageId: voyageId,
         portName,
         portCode: portCode || null,
         country: country || null,

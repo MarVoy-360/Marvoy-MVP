@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Cargo } from "@prisma/client";
+// // import { Cargo } from "@prisma/client"; / Commented out - Prisma not used
+interface Cargo {
+  id: string;
+  type: string;
+  weight?: number;
+  description?: string;
+  [key: string]: any;
+}
 
 interface CargosManagerProps {
   voyageId: string;

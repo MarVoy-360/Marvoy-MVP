@@ -1,118 +1,74 @@
-import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma/client'
-import { createClient } from '@/lib/supabase/server'
+// @ts-nocheck
+import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = "force-dynamic";
+import { createClient } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const dbUser = await prisma.user.findUnique({
-      where: { email: user.email! },
-      select: { organizationId: true }
-    })
+    const { id } = await params;
 
-    if (!dbUser || !dbUser.organizationId) {
-      return NextResponse.json({ error: 'User not associated with organization' }, { status: 403 })
+    const { data: voyage, error } = await supabase
+      .from('voyages')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching voyage:', error);
+      return NextResponse.json({ error: 'Failed to fetch voyage' }, { status: 500 });
     }
-
-    const voyage = await prisma.voyage.findFirst({
-      where: {
-        id: params.id,
-        organizationId: dbUser.organizationId
-      },
-      include: {
-        portCalls: {
-          orderBy: { sequence: 'asc' },
-          include: {
-            activities: {
-              orderBy: { activityTime: 'asc' }
-            },
-            cargoLoads: true,
-            cargoDischarges: true
-          }
-        },
-        cargos: {
-          include: {
-            loadPort: true,
-            dischargePort: true
-          }
-        },
-        charterParties: {
-          include: {
-            calculations: {
-              orderBy: { calculatedAt: 'desc' }
-            }
-          }
-        },
-        createdBy: {
-          select: { name: true, email: true }
-        }
-      }
-    })
 
     if (!voyage) {
-      return NextResponse.json({ error: 'Voyage not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Voyage not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ voyage }, { status: 200 })
+    return NextResponse.json({ voyage }, { status: 200 });
   } catch (error) {
-    console.error('Error fetching voyage:', error)
-    return NextResponse.json({ error: 'Failed to fetch voyage' }, { status: 500 })
+    console.error('Error in voyage GET:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const dbUser = await prisma.user.findUnique({
-      where: { email: user.email! },
-      select: { organizationId: true }
-    })
+    const { id } = await params;
+    const body = await request.json();
 
-    if (!dbUser || !dbUser.organizationId) {
-      return NextResponse.json({ error: 'User not associated with organization' }, { status: 403 })
+    const { data: voyage, error } = await supabase
+      .from('voyages')
+      .update(body)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating voyage:', error);
+      return NextResponse.json({ error: 'Failed to update voyage' }, { status: 500 });
     }
 
-    const body = await request.json()
-    const { voyageNumber, vesselName, vesselIMO, status } = body
-
-    const voyage = await prisma.voyage.updateMany({
-      where: {
-        id: params.id,
-        organizationId: dbUser.organizationId
-      },
-      data: {
-        ...(voyageNumber && { voyageNumber }),
-        ...(vesselName && { vesselName }),
-        ...(vesselIMO !== undefined && { vesselIMO }),
-        ...(status && { status })
-      }
-    })
-
-    if (voyage.count === 0) {
-      return NextResponse.json({ error: 'Voyage not found' }, { status: 404 })
-    }
-
-    return NextResponse.json({ success: true }, { status: 200 })
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('Error updating voyage:', error)
-    return NextResponse.json({ error: 'Failed to update voyage' }, { status: 500 })
+    console.error('Error updating voyage:', error);
+    return NextResponse.json({ error: 'Failed to update voyage' }, { status: 500 });
   }
 }

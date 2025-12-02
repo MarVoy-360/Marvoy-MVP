@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SOFActivity } from "@prisma/client";
+
+interface SOFActivity {
+  id: string;
+  [key: string]: any;
+}
 
 interface SOFManagerProps {
   voyageId: string;

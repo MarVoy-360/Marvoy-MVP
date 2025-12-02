@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CharterParty } from "@prisma/client";
+// // import { CharterParty } from "@prisma/client"; / Commented out - Prisma not used
+interface CharterParty {
+  id: string;
+  type: string;
+  startDate?: string;
+  endDate?: string;
+  rate?: number;
+  [key: string]: any;
+}
 
 interface CharterPartiesManagerProps {
   voyageId: string;

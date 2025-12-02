@@ -1,0 +1,29 @@
+
+> marvoy-mvp@0.1.0 build
+> next build
+
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+   ▲ Next.js 16.0.6 (Turbopack)
+   - Environments: .env.local, .env
+
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 5.2s
+   Running TypeScript ...
+Failed to compile.
+
+./app/app/voyages/[id]/components/CargosManager.tsx:11:40
+Type error: Cannot find name 'Cargo'.
+
+[0m [90m  9 |[39m
+ [90m 10 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mCargosManager[39m({ voyageId }[33m:[39m [33mCargosManagerProps[39m) {
+[31m[1m>[22m[39m[90m 11 |[39m   [36mconst[39m [cargos[33m,[39m setCargos] [33m=[39m useState[33m<[39m[33mCargo[39m[][33m>[39m([])[33m;[39m
+ [90m    |[39m                                        [31m[1m^[22m[39m
+ [90m 12 |[39m   [36mconst[39m [loading[33m,[39m setLoading] [33m=[39m useState([36mtrue[39m)[33m;[39m
+ [90m 13 |[39m   [36mconst[39m [isFormOpen[33m,[39m setIsFormOpen] [33m=[39m useState([36mfalse[39m)[33m;[39m
+ [90m 14 |[39m   [36mconst[39m [formData[33m,[39m setFormData] [33m=[39m useState({[0m
+Next.js build worker exited with code: 1 and signal: null
