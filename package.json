@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate --no-engine"
+    "postinstall": "DATABASE_URL=postgresql://placeholder prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^7.0.1",
